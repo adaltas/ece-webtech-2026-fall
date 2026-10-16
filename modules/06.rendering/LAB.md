@@ -34,7 +34,7 @@ For each page (or section) of your website, answer the questions from the "How t
 - Does the page need SEO?
 - How interactive is it?
 
-Then pick a strategy and justify it. Write the result in a `RENDERING.md` file at the root of your repository, as a table. For example:
+Then pick a strategy and justify it. Write the result in a `docs/RENDERING.md` file, as a table. For example:
 
 | Page                   | Data source        | Update frequency | Personalized | SEO | Strategy |
 |------------------------|--------------------|------------------|--------------|-----|----------|
