@@ -4,7 +4,7 @@ duration: 2h
 
 # Lab: rendering strategies with Next.js
 
-Every page of a website doesn't have the same needs: some content is frozen, some must always be fresh, some is personalized per user. In this lab, you audit your course project, pick the proper rendering strategy for each section, and implement it with the Next.js App Router.
+Not every page of a website has the same needs: some content is frozen, some must always be fresh, some is personalized per user. In this lab, you audit your course project, pick the proper rendering strategy for each section, and implement it with the Next.js App Router.
 
 ## Objectives
 

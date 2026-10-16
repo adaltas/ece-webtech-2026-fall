@@ -53,48 +53,47 @@ Measurement: lab data (Lighthouse, WebPageTest) vs field data (CrUX, web-vitals,
 - Pitfall: the page is visible but not yet interactive (uncanny valley), gap between FCP and TTI/INP
 - Risk of hydration mismatch (server and client render differently)
 
+Techniques reducing or avoiding the hydration cost:
+
+- **Selective / Progressive hydration**: hydrate per component, by priority or visibility. Eg [Astro `client:*` directives](https://docs.astro.build/en/reference/directives-reference/#client-directives) (`client:idle`, `client:visible`…)
+- **Islands architecture**: static page with interactive "islands" hydrated individually, very little JS shipped. Eg [Astro](https://docs.astro.build/en/concepts/islands/), [Fresh](https://fresh.deno.dev/docs/concepts/islands)
+- **Resumability**: alternative to hydration, serialize the state and "resume" where the server stopped, no re-execution client-side. Eg [Qwik](https://qwik.dev/docs/concepts/resumable/)
+
 ### ISR - Incremental Static Regeneration
 
-- SSG + background regeneration after a delay or on-demand
+- Derived from SSG: build-time generation + background regeneration after a delay or on-demand
 - Static pages without a full rebuild
 - Popularized by [Next.js](https://nextjs.org/docs/app/guides/incremental-static-regeneration): pass the `revalidate` option when calling `fetch`
 
+Variant:
+
+- **DPR / on-demand rendering**: static generation deferred to the first request, then cached; the page is generated once, deterministically, no stale content served. Eg [Netlify on-demand builders](https://docs.netlify.com/configure-builds/on-demand-builders/)
+
 ### Streaming SSR
 
-- Server sends the HTML in chunks to display the ready parts fast
+- Derived from SSR: the server sends the HTML in chunks to display the ready parts fast
 - Eg [React `<Suspense>`](https://react.dev/reference/react/Suspense) and [Next.js `loading.js`](https://nextjs.org/docs/app/api-reference/file-conventions/loading): stream HTML chunks as data becomes ready
 
-### Selective / Progressive hydration
+### Edge rendering
 
-- Hydrate per component, by priority or visibility
-- Eg [Astro `client:*` directives](https://docs.astro.build/en/reference/directives-reference/#client-directives) (`client:idle`, `client:visible`…)
-
-### Islands architecture
-
-- Static page with interactive "islands" hydrated individually
-- Very little JS shipped
-- Eg [Astro](https://docs.astro.build/en/concepts/islands/), [Fresh](https://fresh.deno.dev/docs/concepts/islands)
-
-### Resumability
-
-- Instead of re-executing the app client-side, serialize the state and "resume" where the server stopped
-- No global hydration
-- Eg [Qwik](https://qwik.dev/docs/concepts/resumable/)
+- Derived from SSR: changes where the rendering happens, not how
+- SSR executed on CDN nodes close to the user to reduce latency (TTFB)
+- Eg [Vercel Functions](https://vercel.com/docs/functions), [Cloudflare Workers](https://developers.cloudflare.com/workers/)
 
 ### Server Components
 
 - Components executed only on the server (zero client JS for them), mixed with client components
+- Orthogonal to the page-level strategies: combines with SSG, ISR and SSR alike
 - Eg [React Server Components](https://react.dev/reference/rsc/server-components), the [default in the Next.js App Router](https://nextjs.org/docs/app/getting-started/server-and-client-components)
 
-### Edge rendering
+## Summary
 
-- SSR executed on CDN nodes close to the user to reduce latency
-- Eg [Vercel Functions](https://vercel.com/docs/functions), [Cloudflare Workers](https://developers.cloudflare.com/workers/)
-
-### DPR / on-demand rendering
-
-- Static generation at the first request, then cached
-- Eg [Netlify on-demand builders](https://docs.netlify.com/configure-builds/on-demand-builders/)
+| Strategy | Rendered   | Data       | TTFB      | SEO  | Interactive     |
+|----------|------------|------------|-----------|------|-----------------|
+| CSR      | browser    | at runtime | fast      | weak | after JS        |
+| SSR      | server     | fresh      | slower    | good | after hydration |
+| SSG      | build      | frozen     | very fast | good | after hydration |
+| ISR      | build + bg | semi-fresh | very fast | good | after hydration |
 
 ## How to choose
 
