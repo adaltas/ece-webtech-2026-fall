@@ -8,24 +8,24 @@ The module will introduce the Express framework to write a web application that 
 
 ## What’s an API?
 
-* Application Programming Interface
-* Is a set of definitions and protocols for building and integrating software
-* Is a "contract" between an information provider and an information user
-* API in web (mostly) - REST API
+- Application Programming Interface
+- Is a set of definitions and protocols for building and integrating software
+- Is a "contract" between an information provider and an information user
+- API in web (mostly) - REST API
 
 ## How to use an API?
 
-* Combination of 2 *microservices*:
-  * **Back-end** exposes REST API
-  * **Front-end** (web pages, mobile apps) consumes REST API
+- Combination of 2 *microservices*:
+  - **Back-end** exposes REST API
+  - **Front-end** (web pages, mobile apps) consumes REST API
 
 ## REST API
 
-* REST - REpresentational State Transfer
-* Exposes a set of HTTP routes
-* Uses [HTTP Verbs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods) (GET, POST, PUT, DELETE, ...)
-* Clients send requests to communicate
-* Usually communicating in JSON
+- REST - REpresentational State Transfer
+- Exposes a set of HTTP routes
+- Uses [HTTP Verbs](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods) (GET, POST, PUT, DELETE, ...)
+- Clients send requests to communicate
+- Usually communicating in JSON
 
 REST API example: <https://petstore.swagger.io/>
 
@@ -33,36 +33,36 @@ REST API example: <https://petstore.swagger.io/>
 
 Uses standard HTTP methods:
 
-* **GET** - retrieve a specific resource (by id) or a collection of resources
-* **POST** - create a new resource
-* **PUT** - update a specific resource (by id)
-* **PATCH** - partially update a specific resource (by id)
-* **DELETE** - remove a specific resource by id
+- **GET** - retrieve a specific resource (by id) or a collection of resources
+- **POST** - create a new resource
+- **PUT** - update a specific resource (by id)
+- **PATCH** - partially update a specific resource (by id)
+- **DELETE** - remove a specific resource by id
 
 ## GraphQL
 
-* Self-documenting APIs to end users
-* Enhanced flexibility with selective properties and relations
-* Speed of integration for end-users, in particular when working with different back-end teams
-* Better performances
-* DBnomics demo: [Expose an OpenAPI schema with GraphQL](https://dbnomics.adaltas.com/)
+- Self-documenting APIs to end users
+- Enhanced flexibility with selective properties and relations
+- Fewer round trips: one query fetches many related resources
+- Speed of integration for end-users, in particular when working with different back-end teams
+- DBnomics demo: [Expose an OpenAPI schema with GraphQL](https://dbnomics.adaltas.com/)
 
 ## What is Express?
 
-* Minimalist framework for NodeJS apps
-* Provides features for web app development
-* Create robust APIs
-* Functions to expose a front end
+- Minimalist framework for Node.js apps
+- Provides features for web app development
+- Create robust APIs
+- The de-facto standard since 2010, version 5 released in 2024
 
 [Express guide](https://expressjs.com/en/guide/routing.html)
 
 ## Create a basic server
 
-* Manually: use Node.js `http` module
-* With Express:
+- Manually: use Node.js `http` module
+- With Express:
 
 ```js
-const express = require('express')
+import express from 'express'
 const app = express()
 
 app.set('port', 8080)
@@ -75,8 +75,8 @@ app.listen(
 
 ## Routing
 
-* Manually: parse the URL and apply the corresponding logic
-* With Express:
+- Manually: parse the URL and apply the corresponding logic
+- With Express:
 
 ```js
 app.get('/', function (req, res) {
@@ -115,10 +115,10 @@ app.get(
 
 ## Query parameters
 
-* are optional
-* passed in the URL after the `?` character
-* separated by `&` character
-* be specified multiple times
+- are optional
+- passed in the URL after the `?` character
+- separated by `&` character
+- be specified multiple times
 
 ```js
 // GET /hello?name=John
@@ -127,17 +127,13 @@ app.get('/hello', function (req, res) {
 })
 ```
 
-## Testing web API
+## Testing an API
 
-1. [Postman](https://www.postman.com/)
+### By hand
 
-    * Dashboard to test your API
-    * Simulate HTTP request
-    * Specify custom body & headers
+1. The browser: the easiest way to test a `GET` - type the URL, read the response (Firefox even pretty-prints JSON). Limited to `GET`, no headers, no body
 
-2. [Swagger Inspector](https://inspector.swagger.io)
-
-3. `curl` Bash command. Examples:
+2. `curl` Bash command. Examples:
 
     ```bash
     # Sending GET request
@@ -149,97 +145,42 @@ app.get('/hello', function (req, res) {
     -d '{"username":"myuser","email":"myuser@example.com"}'
     ```
 
-## Unit testing
+3. GUI clients, to craft and replay requests (method, body, headers):
 
-* Test a piece of code that can be logically isolated in a system
-* At its core, it is just a function that is scheduled by the testing library
-* Functions can be grouped together, filtered, and skipped
-* [Mocha](https://mochajs.org/) - is a JavaScript test framework
-* Node.js has a built-in test module since v18
+    - Open source: [Yaak](https://yaak.app/) (desktop, by the creator of Insomnia), [Hoppscotch](https://hoppscotch.io/) (in the browser)
+    - [Postman](https://www.postman.com/): the long-time industry standard - does everything, at the price of a heavier app and a strong pull toward its cloud accounts
 
-## Assertion in unit tests
+Manual testing doesn't scale: it is repeated at every change. Automate it.
 
-* Function must succeed to pass or throw an error to fail
-* An assertion library is handy to check valid information
-* [Supertest](https://www.npmjs.com/package/supertest) - HTTP assertions for JavaScript
-* [Chai](https://www.chaijs.com/) - assertion library for JavaScript
-* Node.js has a built-in `assert` module
+### Automated: the kinds
 
-## Example of unit test
+- **Unit**: one function or module in isolation - fast, no network, no disk
+- **Integration**: several pieces together, eg an HTTP request through the real routes to a response - the level of this module
+- **End-to-end (E2E)**: the whole application driven like a user would, through a real browser ([Playwright](https://playwright.dev/), [Cypress](https://www.cypress.io/))
+- The higher the level, the more realistic and the slower: a healthy suite is a pyramid - many unit, some integration, few E2E
 
-```js
-const app = require('./app')
-const request = require('supertest')
-const assert = require('node:assert')
-const test = require('node:test')
+### Writing tests
 
-test('User: list user', async (t) => {
-  // Create a user
-  await request(app)
-    .post('/user')
-    .send({ username: 'user_1' })
+- A test is just a function scheduled by a test runner; tests can be grouped, filtered, and skipped
+- Node.js has a built-in test runner since v18: [`node:test`](https://nodejs.org/api/test.html), no dependency needed; ecosystem alternatives: [Vitest](https://vitest.dev/), [Jest](https://jestjs.io/), [Mocha](https://mochajs.org/) (historic)
+- A test must throw to fail: assertions throw when a check doesn't hold
+  - Node.js has a built-in [`node:assert`](https://nodejs.org/api/assert.html) module
+  - [Supertest](https://www.npmjs.com/package/supertest) sends real requests to an Express app and asserts on the responses
+- Structure each test as: setup, execution, validation, cleanup
+- Avoid the anti-patterns: tests depending on each other or on leftover state, over-inspecting, slow tests
 
-  // Test
-  const { body: users } = await request(app)
-    .get('/user')
-    .expect('Content-Type', /json/)
-    .expect(200)
+### Test-driven development (TDD)
 
-  assert.strictEqual(users[0].username, 'user_1')
-})
-```
+Write the test before the code, then loop:
 
-## Assertion styles
+1. **Red** - write a failing test specifying one behavior
+2. **Green** - write the minimal implementation that makes it pass
+3. **Refactor** - clean up, the tests must stay green
 
-`assert`:
+- The test suite is the executable specification of the API, and a regression safety net
+- One cycle = one feature = one commit: a readable history
+- In the age of AI, TDD is a division of labor: the tests are the contract the developer owns and writes, the implementation can be delegated to an agent - the suite tells both when the code is right
 
-```js
-const assert = chai.assert
-
-assert.typeOf(foo, 'string')
-assert.equal(foo, 'bar')
-assert.lengthOf(foo, 3)
-assert.property(tea, 'flavors')
-assert.lengthOf(tea.flavors, 3)
-```
-
-`should`:
-
-```js
-chai.should()
-
-foo.should.be.a('string')
-foo.should.equal('bar')
-foo.should.have.lengthOf(3)
-tea.should.have.property('flavors')
-  .with.lengthOf(3)
-```
-
-`expect`:
-
-```js
-const expect = chai.expect
-
-expect(foo).to.be.a('string')
-expect(foo).to.equal('bar')
-expect(foo).to.have.lengthOf(3)
-expect(tea).to.have.property('flavors')
-  .with.lengthOf(3)
-```
-
-## Test writing best practices
-
-1. Unit test structure:
-    * Setup
-    * Execution
-    * Validation
-    * Cleanup
-2. Avoid anti-patterns:
-    * test case depending on the system state from the previous test
-    * dependencies between test cases
-    * don't inspect more than necessary
-    * slow running tests
-  
 ---
 
 *The content of this document, including all text, images, and associated materials, is the exclusive property of Adaltas and is protected by applicable copyright laws. Unauthorized distribution, reproduction, or sharing of this content, in whole or in part, is strictly prohibited without the express written consent of the author(s). Any violation of this restriction may result in legal action and the imposition of penalties as prescribed by law.*

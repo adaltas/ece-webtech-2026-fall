@@ -4,22 +4,26 @@ duration: 1h
 
 # Getting started with JavaScript, Node.js, and Asynchronous Programming
 
-## Web development languages and frameworks
+JavaScript was born in the browser, and in 2009 it escaped to the server. This class follows the escape: the language and its history, the runtime that freed it, the modules and packages that organize its code, and the single-threaded asynchronous model that made it a serious server platform.
 
-Langage / Framework | Start | Used for
+## The server-side landscape
+
+Every era had its server language. JavaScript arrived last, with a twist: it is also the language of the browser.
+
+Language / Framework | Start | Used for
 --- | --- | ---
 Perl / CGI | 1990s | Initial CGI scripts
 PHP | 1995 | Dynamic sites, WordPress, CMS
-Java / Servlets, Spring | 1999 / 2002 | Enterprise apps, RESTAPI
-Ruby on Rails | 2005 | Rapid MVPs, startups
+Java / Servlets, Spring | 1997 / 2004 | Enterprise apps, REST APIs
+Ruby on Rails | 2004 | Rapid MVPs, startups
 Python / Django | 2005 | Full‑stack apps, auto‑generated admin
 Python / Flask | 2010 | Microservices, lightweight APIs
 Python / FastAPI | 2019 | High-performance APIs, async
-Javascript / Node.js + Express | 2009 | Event-driven apps, real‑time, full‑stack JS
+JavaScript / Node.js + Express | 2009 | Event-driven apps, real‑time, full‑stack JS
 
-### Why using JavaScript for this course?
+### Why JavaScript for this course?
 
-- Industry standard: JavaScript is the most widely used language for web development
+- The language of the browser, and among the [most used languages overall](https://survey.stackoverflow.co/2025/technology)
 - Full-stack JavaScript: Same language for front-end and back-end
 - Rich ecosystem: npm, frameworks (Express, Next.js, etc.) and community support
 - TypeScript: Optional static typing for better tooling and maintainability
@@ -31,33 +35,35 @@ Highlights:
 - Single-threaded and synchronous (asynchronous I/O with event loop)
 - Runs natively in web browsers
 
-### A brief history of JavaScript
+## A brief history of JavaScript
 
 - 1995: Created by Brendan Eich at Netscape (in 10 days)
 - Named Mocha, then LiveScript, then JavaScript
-- 1996: Shipped with IE3 in 1996 as JScript (as Netscape owned the JavaScript trademark)
+- 1996: Shipped with IE3 in 1996 as JScript (Sun - now Oracle - owned the JavaScript trademark)
 - 1996: Standardized as ECMAScript (ES) by ECMA International
 - 1997: ES1 released
-- 2009: Node.js created by Ryan Dahl
+- 2009: Node.js created by Ryan Dahl - **the escape**: JavaScript runs on the server
 - 2010: npm (Node Package Manager) introduced
 - 2015: ES6 released, major update with classes, modules, arrow functions, promises
 - 2020: Node.js 14.0.0 released, with native ES modules
 - Since ES6, a new version is released every year
+- 2020s: alternative runtimes - [Deno](https://deno.com/) (2020, by Node's creator) and [Bun](https://bun.sh/) (2023); Node.js answers with a built-in test runner, watch mode, and native TypeScript type-stripping
 
-## JavaScript Runtime and Node.js
+## Engine, runtime, Node.js
 
-- JavaScript: Originally a client-side scripting language for web browsers
+What did the escape take? Separating the language from the browser:
+
 - Engine: Executes JavaScript code, implementation of ECMAScript (ex: V8, SpiderMonkey, JavaScriptCore)
 - Runtime: Engine + API and libraries for additional functionality (ex: Chrome, Firefox, Node.js)
 - Node.js: JavaScript runtime built on Chrome's V8 engine, allows running JavaScript on the server side
-  - Provides APIs for file system, networking, and more
+  - Same language, new powers: APIs for the file system, networking, processes - everything the browser forbids
 
-## Javascript modules
+## JavaScript modules
 
-- Modules: Reusable pieces of code that can be imported and exported
-- Node.js introduced its own module system before ES Modules were standardized:
-  - CommonJS: Module system used in Node.js (uses `require` and `module.exports`)
-  - ES Modules: Standardized module system (uses `import` and `export`)
+A server application is more than one file. Modules are reusable pieces of code that can be imported and exported - and Node.js introduced its own system before the standard existed:
+
+- CommonJS: Module system historically used in Node.js (uses `require` and `module.exports`)
+- ES Modules: Standardized module system (uses `import` and `export`)
 
 ### CommonJS vs ES Modules
 
@@ -96,12 +102,16 @@ Highlights:
     console.log(add(2, 3)); // 5
     ```
 
-## Javascript packages
+- ES Modules are the standard: use them for new code. In Node.js, opt in with `"type": "module"` in `package.json` (or the `.mjs` extension)
 
-- What we call a library in other languages
+## JavaScript packages
+
+More than one file, and more than one author: code is shared as packages.
+
+- What other languages call a library
 - A directory that contains one or more `.js` files
 - A directory that contains a `package.json` file at its root, describing:
-  - General informations: `name`, `description`, `version`, `license`
+  - General information: `name`, `description`, `version`, `license`
   - Is the project private: `private`
   - Scripts and commands: `scripts`
   - Dependencies: `dependencies` and `devDependencies`
@@ -117,12 +127,6 @@ ece-webtech/
 ```
 
 ### `package.json` file
-
-It stores a package's information:
-
-- `name`, `description`, `version`, `license` and `private`
-- `dependencies` and `devDependencies`
-- scripts and commands
 
 ```json
 {
@@ -259,125 +263,20 @@ Using conventional commit messages and tools like [semantic-release](https://sem
 
 ## Asynchronous programming
 
+The price of the escape: one single thread serves every request. Blocking it freezes the whole server, so nothing may wait.
+
 - Synchronous: Blocking, sequential execution (e.g., traditional function calls)
 - Asynchronous: Non-blocking, allows other code to run while waiting for operations (e.g., I/O operations)
+- Powered by the [event loop](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Execution_model): waiting operations are queued, their continuations executed when ready
 
-<!-- ## JavaScript event loop
+Three patterns, from historical to current:
 
-- Event loop: Mechanism that allows JavaScript to perform non-blocking I/O operations
-- Call stack: Where function calls are executed
-- Callback queue: Holds functions to be executed after the current call stack is empty
-- Microtask queue: Holds promises and other microtasks to be executed after the current task but before the next event loop iteration
-- Example: When an I/O operation is initiated, the event loop allows the program to continue executing other code while waiting for the I/O operation to complete. Once the operation is done, the callback is added to the callback queue, and the event loop processes it -->
+- **Callbacks**: a function passed as argument, invoked when the operation completes. Nesting them leads to the infamous "callback hell"
+- **Promises** (ES6): an object representing an eventual result, chained with `.then()` and `.catch()`
+- **`async`/`await`** (ES2017): syntactic sugar over promises, asynchronous code that reads synchronously - the modern default
 
-### Asynchronous patterns: callbacks
+References: [Asynchronous JavaScript](https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Async_JS) (MDN), [Promises, async/await](https://javascript.info/async) (javascript.info).
 
-Callbacks: Functions passed as arguments to be executed later (e.g., `setTimeout`, event listeners).
+---
 
-```js
-function fetchDataCallback(callback) {
-  setTimeout(() => {
-    // first arg is error (null if OK), second is result
-    callback(null, { id: 1, name: 'Alice' });
-  }, 500);
-}
-
-// Usage:
-fetchDataCallback((err, user) => {
-  if (err) {
-    console.error('Error:', err);
-    return;
-  }
-  console.log('User fetched (callback):', user);
-});
-```
-
-#### Asynchronous patterns: callback hell
-
-Callback hell: A situation where multiple nested callbacks make code hard to read and maintain.
-
-```js
-// reuse fetchDataCallback() from above
-
-// Fetch user
-fetchDataCallback((err, user) => {
-  if (err) {
-    console.error('Error:', err);
-    return;
-  }
-  console.log('User fetched (callback):', user);
-  // Fetch posts for the user
-  fetchDataCallback((err, posts) => {
-    if (err) {
-      console.error('Error:', err);
-      return;
-    }
-    console.log('Posts fetched (callback):', posts);
-    // Fetch comments for the first post
-    fetchDataCallback((err, comments) => {
-      if (err) {
-        console.error('Error:', err);
-        return;
-      }
-      console.log('Comments fetched (callback):', comments);
-    });
-  });
-});
-```
-
-### Asynchronous patterns: promises
-
-Promises: Objects representing the eventual completion (or failure) of an asynchronous operation, providing a cleaner way to handle asynchronous code.
-
-Promises flatten the nesting and let chain `.then()` calls.
-
-```js
-function fetchDataPromise() {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => resolve({ id: 1, name: 'Alice' }), 500);
-  });
-}
-
-// Usage:
-fetchDataPromise()
-  .then(user => {
-    console.log('User fetched (promise):', user);
-    return user.id;
-  })
-  .then(id => {
-    // another async step
-    return new Promise(res => setTimeout(() => res(id * 10), 300));
-  })
-  .then(result => {
-    console.log('Final result (promise):', result);
-  })
-  .catch(err => {
-    console.error('Error:', err);
-  });
-```
-
-### Asynchronous patterns: async/await
-
-Async/await: Syntactic sugar built on top of promises, allowing asynchronous code to be written in a more synchronous style, improving readability.
-
-```js
-// reuse fetchDataPromise() from above
-
-async function run() {
-  try {
-    const user = await fetchDataPromise();
-    console.log('User fetched (async/await):', user);
-
-    // another async step:
-    const computed = await new Promise(res =>
-      setTimeout(() => res(user.id * 10), 300)
-    );
-    console.log('Final result (async/await):', computed);
-
-  } catch (err) {
-    console.error('Error:', err);
-  }
-}
-
-run();
-```
+*The content of this document, including all text, images, and associated materials, is the exclusive property of Adaltas and is protected by applicable copyright laws. Unauthorized distribution, reproduction, or sharing of this content, in whole or in part, is strictly prohibited without the express written consent of the author(s). Any violation of this restriction may result in legal action and the imposition of penalties as prescribed by law.*

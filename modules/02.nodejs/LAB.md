@@ -1,39 +1,21 @@
 ---
 duration: 2h
+objectives:
+  - Initialize an npm project and publish it to GitHub
+  - Write and run Node.js scripts
+  - Build a Node.js HTTP server with multiple routes
 ---
 
 # Lab: getting started with Node.js & Git
 
-## Objectives
+This lab starts a new Node.js project which serves as the basis for the following courses: every week, incremental features are completed toward a working application. In the end, it becomes your final project - the final grade reflects the delivered project, as well as its Git history.
 
-- Getting up and ready with Node.js
-- Project and repository initialization
-- Web server in Node.js
+## Prerequisites
 
-## Tasks
+- The lab 1 environment: UNIX-like system, Git, team repository.
+- Node.js LTS installed following the [setup guide](../01.introduction/SETUP.md). Verify with `node --version` and `npm --version`.
 
-1. Start a project
-1. Create a simple Node.js script
-1. Create a simple HTTP server
-1. Integrate Nodemon
-1. Create a basic application with multiple routes
-1. Reading from a JSON file
-1. Publish your project to GitHub
-
-## Notes
-
-The lab starts a new Node.js project which serves as the basis for the following courses. Every week, incremental features are completed toward the creation of a working application.
-
-In the end, it becomes the basis for your final project. The final grade reflects the delivered project, as well as its Git history.
-
-## Prerequisites: Node.js installation
-
-- Linux / macOS, don't use the installer or your package manager.
-- We want to be able to switch between multiple Node.js versions.
-- We want Node.js to be installed inside your home directory, with administrative permissions (no `sudo`).
-- Use [`n-install`](https://github.com/mklement0/n-install), a script to install [`n`](https://github.com/tj/n).
-
-## Create a simple Node.js script
+## 1. Create a simple Node.js script
 
 ### Start working with a text editor
 
@@ -76,6 +58,8 @@ It will create a `package.json` file for you. Later, you can manually modify the
 
 - `author`
 - `description`
+
+Add the `"type": "module"` property: as seen in class, ES Modules are the standard, this enables `import`/`export` in the project.
 
 ### Define an NPM script
 
@@ -125,7 +109,7 @@ git add .
 git commit -m "Initial commit"
 ```
 
-## Create an HTTP server
+## 2. Create an HTTP server
 
 ### Basic HTTP server implementation
 
@@ -133,7 +117,7 @@ Modify the `index.js` file with the following content
 
 ```js
 // Import a module
-const http = require('http')
+import http from 'node:http'
 
 // Declare an http server
 http.createServer(function (req, res) {
@@ -212,15 +196,12 @@ http
 
 A path is the part of the URL that comes after the domain name. For example, in `http://localhost:8080/my/path`, the path is `/my/path`.
 
-Enrich the previous code with the following:
+Enrich the previous code with the following - the [`URL` class](https://developer.mozilla.org/en-US/docs/Web/API/URL) is global, no import needed:
 
 ```js
-// Import Node url module
-const url = require('url')
-
 const serverHandle = function (req, res) {
   // Retrieve and print the current path
-  const path = url.parse(req.url).pathname
+  const path = new URL(req.url, `http://${req.headers.host}`).pathname
   console.log(path)
 
   res.writeHead(200, {'Content-Type': 'text/html'})
@@ -243,18 +224,15 @@ Web URLs can be enriched with query parameters, which come after the `?` and are
 http://my.site/my/page.html?username=toto&password=lulu
 ```
 
-These parameters can be parsed with Node's `querystring` module on the URL's query property.
+The `URL` class parses them and exposes them as [`searchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URL/searchParams).
 
 Enrich the previous code with the following:
 
 ```js
-const url = require('url')
-const qs = require('querystring')
-
 const serverHandle = function (req, res) {
-  // Retrieve and print the queryParams
-  const queryParams = qs.parse(url.parse(req.url).query)
-  console.log(queryParams)
+  // Retrieve and print the query parameters
+  const { searchParams } = new URL(req.url, `http://${req.headers.host}`)
+  console.log(Object.fromEntries(searchParams))
 
   res.writeHead(200, {'Content-Type': 'text/html'})
   res.write(content)
@@ -273,22 +251,19 @@ Access your local website by different URLs like `localhost:8080/?name=John&emai
 Enrich the previous code with the following:
 
 ```js
-const url = require('url')
-const qs = require('querystring')
-
 const serverHandle = function (req, res) {
-  const route = url.parse(req.url)
-  const path = route.pathname 
-  const params = qs.parse(route.query)
+  const route = new URL(req.url, `http://${req.headers.host}`)
+  const path = route.pathname
+  const params = route.searchParams
 
   res.writeHead(200, {'Content-Type': 'text/plain'})
 
-  if (path === '/hello' && 'name' in params) {
-    res.write('Hello ' + params['name'])
+  if (path === '/hello' && params.has('name')) {
+    res.write('Hello ' + params.get('name'))
   } else {
     res.write('Hello anonymous')
   }
-  
+
   res.end()
 }
 ```
@@ -302,24 +277,22 @@ Create `handles.js` and `index.js` files and reorganize the previous code like:
 ```js
 // ./handles.js
 // Necessary imports
-module.exports = {
-  serverHandle: function (req, res) {
-    // ...
-  } 
+export const serverHandle = function (req, res) {
+  // ...
 }
 ```
 
 ```js
 // ./index.js
-const http = require('http')
-const handles = require('./handles')
+import http from 'node:http'
+import { serverHandle } from './handles.js'
 
 http
-.createServer(handles.serverHandle)
+.createServer(serverHandle)
 .listen(8080)
 ```
 
-## Integrate Nodemon
+## 3. Integrate Nodemon
 
 Tired of restarting your webserver after every modification of the source code? Let's fix it!
 
@@ -340,7 +313,8 @@ npx nodemon index.js
 
 Now, it will restart the web server when the file is updated. There is no need to restart it manually to apply modifications of code. Just refresh the page in a browser.
 
-> Note! Don't forget to define a `.gitignore` to prevent committing the `node_modules` folder.
+> [!IMPORTANT]
+> Don't forget to define a `.gitignore` to prevent committing the `node_modules` folder.
 
 ### Define an NPM script in `package.json`
 
@@ -360,7 +334,7 @@ And then always run when developing:
 npm run dev
 ```
 
-## Create a basic application with multiple routes
+## 4. Create a basic application with multiple routes
 
 Create an application with 3 routes:
 
@@ -370,7 +344,7 @@ Create an application with 3 routes:
     - your own name replies with a short intro of yourself
 3. Any other path replies a 404 code with a not found message
 
-## Reading from a JSON file
+## 5. Reading from a JSON file
 
 1. Create a subfolder with the name `content` and create a JSON file `about.json` inside it with the example content like this:
 
@@ -385,14 +359,16 @@ Create an application with 3 routes:
 
 1. Create the route `/about` displaying the content of this JSON file:
 
-    - use `require()` method to access a file
-    - chose a proper `Content-Type` for displaying JSON
+    - read the file with [`readFileSync`](https://nodejs.org/api/fs.html#fsreadfilesyncpath-options) from `node:fs` and parse it with `JSON.parse()`
+    - choose a proper `Content-Type` for displaying JSON
 
 1. Create dynamic routing.
 
 Parse the path and verify if a JSON file exists in the `content` folder. If yes, print its content. If no, redirect to the 404 error page.
 
-## Publish your project to GitHub
+Bonus - practice the asynchronous patterns from the class: read the file with the callback-based [`fs.readFile`](https://nodejs.org/api/fs.html#fsreadfilepath-options-callback), then rewrite it with [`node:fs/promises`](https://nodejs.org/api/fs.html#fspromisesreadfilepath-options) and `await`. Compare the three versions.
+
+## 6. Publish your project to GitHub
 
 ### Document your project
 
@@ -408,9 +384,12 @@ Update the `README.md` file. It should at least contain:
 ### Push it to GitHub
 
 Commit your changes, use your **PRIVATE** group repository on GitHub, and push it.
-Create a tag `lab1` for the last commit and also push it.
 
-## Cultivate yourself
+## 7. Bonus - cultivate yourself
 
 - [Learn Markdown](https://www.markdownguide.org/)
 - [How to write README](https://dev.to/scottydocs/how-to-write-a-kickass-readme-5af9)
+
+---
+
+*The content of this document, including all text, images, and associated materials, is the exclusive property of Adaltas and is protected by applicable copyright laws. Unauthorized distribution, reproduction, or sharing of this content, in whole or in part, is strictly prohibited without the express written consent of the author(s). Any violation of this restriction may result in legal action and the imposition of penalties as prescribed by law.*

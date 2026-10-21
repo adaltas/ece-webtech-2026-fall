@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Click Counter - Plain JavaScript</title>
+  </head>
+  <body>
+    <h1>Plain JavaScript Click Counter</h1>
+    <div>
+      <button id="clickme">Click me</button>
+      <span id="counter">0</span> times
+    </div>
+    <script>
+      // The state lives in a plain variable...
+      let count = 0
+
+      // ...and we are responsible for keeping the DOM in sync with it
+      const counter = document.getElementById('counter')
+      const handleClick = () => {
+        count++
+        counter.textContent = count
+      }
+
+      // Add event listener
+      document.getElementById('clickme').addEventListener('click', handleClick)
+    </script>
+  </body>
+</html>

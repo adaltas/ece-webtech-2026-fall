@@ -1,33 +1,18 @@
 ---
 duration: 2h
+objectives:
+  - Audit a website and justify a rendering strategy per section
+  - Implement SSG, SSR, ISR and CSR with the Next.js App Router
+  - Measure the impact with Core Web Vitals
 ---
 
 # Lab: rendering strategies with Next.js
 
 Not every page of a website has the same needs: some content is frozen, some must always be fresh, some is personalized per user. In this lab, you audit your course project, pick the proper rendering strategy for each section, and implement it with the Next.js App Router.
 
-## Objectives
+## 1. Audit your pages and plan a rendering strategy
 
-- Audit a website and associate a rendering strategy to each section
-- Implement SSG, SSR, ISR and CSR with the Next.js App Router
-- Measure the impact with Core Web Vitals
-
-## Tasks
-
-1. Audit your pages and plan a rendering strategy
-2. Implement the chosen strategies
-3. Bonus - measure with Lighthouse
-4. Bonus - streaming with Suspense
-
-## Prerequisites
-
-Tag your latest commit from the previous lab with a name like `lab4` to help navigate your project. Don't forget to push the tag.
-
-Read the [module README](./README.md) to be familiar with the strategies (CSR, SSR, SSG, ISR), the hybrid techniques (hydration, streaming, server components) and the performance metrics (TTFB, FCP, LCP, INP, CLS).
-
-## Part 1. Audit your pages and plan a rendering strategy
-
-For each page (or section) of your website, answer the questions from the "How to choose" section of the README:
+For each page (or section) of your website, you must answer the following questions:
 
 - How often does the data change?
 - Is the content the same for every user, or personalized?
@@ -47,7 +32,7 @@ Then pick a strategy and justify it. Write the result in a `docs/RENDERING.md` f
 
 There is no single correct answer: two strategies can be defensible for the same page, what matters is your justification. Adapt the table to the actual pages of your project.
 
-## Part 2. Implement the chosen strategies
+## 2. Implement the chosen strategies
 
 Implement each decision of your `RENDERING.md` table. Your project must use at least once:
 
@@ -61,15 +46,14 @@ Tips:
 
 - In the App Router, components are **server components by default**: no JS is shipped for them. Add `'use client'` only where you need interactivity (event handlers, hooks, browser APIs).
 - Run `npm run build` after each change and observe how the route type evolves in the build output.
-- Commit after each step following [Conventional Commits](https://www.conventionalcommits.org).
 
-## Part 3. Bonus - measure with Lighthouse
+## 3. Bonus - measure with Lighthouse
 
 1. Run a production build (`npm run build && npm run start`), not the dev server.
 2. Audit 2 pages with different strategies using Lighthouse (Chrome DevTools) and compare TTFB, FCP, LCP, TBT and CLS.
 3. Temporarily convert a static page to client-side fetching (or the reverse) and measure again. Report the comparison in `RENDERING.md`.
 
-## Part 4. Bonus - streaming with Suspense
+## 4. Bonus - streaming with Suspense
 
 Add a `loading.js` file (or a `<Suspense>` boundary) to a slow page so the layout displays immediately while the data streams in. Simulate a slow data source with `await new Promise(resolve => setTimeout(resolve, 2000))`.
 

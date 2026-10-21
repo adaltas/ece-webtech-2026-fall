@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Click Counter - React with createElement</title>
+  </head>
+  <body>
+    <h1>React Click Counter (createElement)</h1>
+    <div id="root"></div>
+    <script type="module">
+      import React from 'https://esm.sh/react@19'
+      import { createRoot } from 'https://esm.sh/react-dom@19/client'
+
+      // ClickCounter component
+      const ClickCounter = () => {
+        // The state is declared with useState, React keeps the DOM in sync
+        const [count, setCount] = React.useState(0)
+        const handleClick = () => {
+          setCount(count + 1)
+        }
+        // Elements, built by hand with createElement(type, props, ...children)
+        const Button = React.createElement(
+          'button',
+          {
+            onClick: handleClick,
+          },
+          'Click me'
+        )
+        const Counter = React.createElement(
+          'span',
+          null,
+          ` ${count}`,
+          ' times'
+        )
+        // Return
+        return React.createElement(
+          React.Fragment,
+          null,
+          Button,
+          Counter
+        )
+      }
+
+      // Attach the component to the DOM
+      const root = createRoot(document.getElementById('root'))
+      root.render(React.createElement(ClickCounter))
+    </script>
+  </body>
+</html>

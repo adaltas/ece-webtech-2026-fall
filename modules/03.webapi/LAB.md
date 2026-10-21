@@ -1,109 +1,112 @@
 ---
 duration: 2h
+objectives:
+  - Refactor a Node.js server to Express
+  - Specify a REST API and drive its implementation with tests (TDD)
+  - Delegate implementation to an AI agent while owning the spec, the tests and the commits
+  - Collaborate on one repository with branches and pull requests
 ---
 
-# Lab: Web API with Node.js
+# Lab: a REST API, test-driven with AI
 
-Learn Express to build web API.
-
-## Objectives
-
-- Server-side programming with Node.js
-- Web server with Express
-- Practice unit tests and learn about GraphQL
-
-## Tasks
-
-1. Refactor your previous application to use Express
-2. Build an API
-3. Bonus - cover your API with tests
-4. Learn about GraphQL
+Build a REST API the way modern teams do: the specification and the tests are yours, the implementation grunt work goes to an AI agent, and every feature lands on the shared repository as a reviewed commit.
 
 ## Prerequisites
 
-Tag your latest commit from the previous lab with a name like `lab2` to help navigate your project. Don't forget to push the tag.
+Tag your latest commit from the previous lab with a name like `lab2` to help navigate your project, and push the tag. Make it a habit: this is the last reminder, tag every completed lab from now on.
 
-Ensure your project adheres to community good practices. This includes:
+Continue in the existing code base: this lab rewrites the server of the previous one with Express.
 
-- using a Version Control System (VCS) such as Git
-- writing a README.md to communicate our project goal, API, usage and status
-- generating and maintaining a complete `package.json` description file
-- communicating comprehensive and useful Git commits following the [Conventional Commits](https://www.conventionalcommits.org) specification
-- directory layout (eg: `src`, `content`, ...)
+As always: commit at every step, and keep your `README.md` up to date with the project's usage and status.
 
-Continue with the existing code base from the completed previous lab. In case you didn't finish it, clone the [corrections repository](../../README.md#correction-repositories-and-supporting-source-code), check out the corresponding `lab2-initial` tag and start from there. Later on, you must complete the missing lab by referring to the corrections.
+## 1. Refactor your application to Express
 
-## Part 1. Refactor your previous application to use Express
+A warmup, by hand - no AI on this part:
 
-1. [Install Express](https://www.npmjs.com/package/express#installation)
-2. Read the [basic routing documentation](http://expressjs.com/en/starter/basic-routing.html).
-3. Refactor your conditional routing to Express bringing a modular source code structure using [express.Router](https://expressjs.com/en/guide/routing.html#express-router) middleware.
-4. Use [Postman](https://www.postman.com/) or [Swagger Inspector](https://inspector.swagger.io) or `curl` Bash command to manually test your application. Choose your preference.
-5. Commit your changes following [Conventional Commits](https://www.conventionalcommits.org)
+1. [Install Express](https://expressjs.com/en/starter/installing.html)
+2. Read the [basic routing documentation](https://expressjs.com/en/guide/routing.html)
+3. Refactor your conditional routing to Express, bringing a modular source code structure with the [express.Router](https://expressjs.com/en/guide/routing.html#express-router) middleware
+4. Test manually with `curl` or Postman, commit
 
-## Part 2. Build an API
+## 2. Specify your API - by hand
 
-### 2.1. Prepare an example database model
+Decide with your team what the API serves. The blog is the worked example of this course - **pick your own domain**: recipes, a game library, a workout tracker, a plant collection...
 
-For the sake of simplicity, use a hard-coded database with a global variable to store articles and their comments. For example:
+Write the specification in `docs/API.md`, manually - it is your contract, no AI here either:
 
-```js
-const db = {
-  articles: [
-    {
-      id: '6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b',
-      title: 'My article',
-      content: 'Content of the article.',
-      date: '04/10/2022',
-      author: 'Liz Gringer'
-    },
-    // ...
-  ],
-  comments: [
-    {
-      id: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
-      timestamp: 1664835049,
-      content: 'Content of the comment.',
-      articleId: '6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b',
-      author: 'Bob McLaren'
-    },
-    // ...
-  ]
-}
-```
+1. The resources and their fields. For a blog: `articles` (`id`, `title`, `content`, `author`, `date`) and `comments` (`id`, `articleId`, `content`, `author`, `timestamp`).
+2. The routes as a table: method, path, request body, response, status codes. At minimum: full CRUD on the main resource, plus one nested resource. For a blog:
 
-### 2.2. Create a set of API routes to manage articles
+   | Method | Path                     | Body             | Response      | Status    |
+   |--------|--------------------------|------------------|---------------|-----------|
+   | GET    | `/articles`              | -                | all articles  | 200       |
+   | POST   | `/articles`              | article (no id)  | created article | 201     |
+   | GET    | `/articles/:id`          | -                | one article   | 200 / 404 |
+   | PUT    | `/articles/:id`          | article          | updated article | 200 / 404 |
+   | DELETE | `/articles/:id`          | -                | -             | 204 / 404 |
+   | GET    | `/articles/:id/comments` | -                | its comments  | 200 / 404 |
+   | POST   | `/articles/:id/comments` | comment (no id)  | created comment | 201 / 404 |
 
-- GET `/articles` - list all articles
-- POST `/articles` - add a new article
-- GET `/articles/:articleId` - get an article by ID
+3. Storage is a hard-coded in-memory object - the database comes in module 8. Generate ids with the native [`crypto.randomUUID()`](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID).
 
-### 2.3. Create a set of API routes to manage articles
+## 3. The TDD loop - with an agent
 
-- GET `/articles/:articleId/comments` - get all comments of the article with `articleId`
-- POST `/articles/:articleId/comments` - add a new comment to a specific article with `articleId`
-- GET `/articles/:articleId/comments/:commentId` - get a comment with `commentId` of the article with `articleId`
+Set up the test harness: [`node:test`](https://nodejs.org/api/test.html) with [Supertest](https://www.npmjs.com/package/supertest) as a dev dependency, and a `test` script in `package.json`. Supertest needs to import the Express `app` without starting it: export the app from one module, call `listen` in another.
 
-### Tips
+Here is one full cycle, on the blog example:
 
-1. To search across JavaScript arrays, use the [`find()` method](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find), for example like this:
+1. **Red** - write the test by hand, in `test/articles.test.js`:
 
-    ```js
-    const searchId = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d'
-    const article = db.articles.find( article => article.id === searchId)
-    // returns an element of an array or `undefined`
-    ```
+   ```js
+   import app from '../app.js'
+   import request from 'supertest'
+   import assert from 'node:assert'
+   import test from 'node:test'
 
-2. The string like `9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d` is a UUID (Universally Unique IDentifier), also known as GUIDs (Globally Unique IDentifier), [read more here](https://www.ietf.org/rfc/rfc4122.txt). To generate UUID use [this NPM package](https://www.npmjs.com/package/uuid).
+   test('articles: create then list', async () => {
+     // Create an article
+     await request(app)
+       .post('/articles')
+       .send({ title: 'My article', content: '...', author: 'Alice' })
+       .expect(201)
 
-3. Timestamp is a number representing the date and time, [read more here](https://en.wikipedia.org/wiki/Timestamp). To get the current timestamp, use `Date.now()` JavaScript function.
+     // It shows up in the list
+     const { body: articles } = await request(app)
+       .get('/articles')
+       .expect('Content-Type', /json/)
+       .expect(200)
 
-4. Don't forget to commit and push by following [Conventional Commits](https://www.conventionalcommits.org).
+     assert.strictEqual(articles[0].title, 'My article')
+   })
+   ```
 
-## Part 3. Bonus - cover your API with tests
+   `npm test` fails: red.
 
-Install [Mocha](https://mochajs.org/#installation) and cover your API with tests using [SuperTest](https://www.npmjs.com/package/supertest) package.
+2. **Green** - prompt the agent, for example: *"Make `test/articles.test.js` pass by implementing `POST /articles` and `GET /articles` in the Express app, following `docs/API.md`. Minimal code, don't touch the tests."* Run `npm test`: green.
 
-## Part 4. Learn about GraphQL
+3. **Refactor** - review the generated code, ask for cleanups if needed, tests stay green.
 
-Read about the [main advantages of GraphQL as an alternative to REST](https://www.adaltas.com/en/2018/11/27/graphql-advantages-over-rest/).
+4. **Commit**: `feat(api): create and list articles`.
+
+Now split the endpoints of your spec among the team members. Each member covers their routes by repeating the loop, one route at a time, on their own branch:
+
+1. **Red** - write the test yourself, covering the behavior *and* its error case (eg the 404). Run the suite: it must fail.
+2. **Green** - hand over to an AI agent (Copilot, Claude, Cursor, ...): give it the spec and the failing test, ask for the minimal implementation. Run the suite: it must pass.
+3. **Refactor** - read the generated code as a reviewer. Duplicated logic, dead code, odd naming? Ask the agent to refactor; the tests must stay green.
+4. **Commit** - one feature, one commit: `feat(api): list articles`, `feat(api): delete an article`, ...
+5. **Merge** - open a pull request, reviewed by at least one teammate. Keep `main` green: run `npm test` before approving.
+
+Rules of the game:
+
+- The agent never writes or edits tests. If a test must change, the spec was wrong: fix `docs/API.md` first, in its own commit.
+- Never weaken a test to make an implementation pass.
+
+At some point, two of you will touch the same file - good. Resolve the merge conflict together (lab 1 skills), rerun the tests, and move on.
+
+## 4. Bonus - tests on every pull request
+
+Automate the merge gate with a [GitHub Actions workflow](https://docs.github.com/en/actions/use-cases-and-examples/building-and-testing/building-and-testing-nodejs) running `npm test` on each pull request, and make it [required to merge](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches). Nobody - human or agent - merges red.
+
+---
+
+*The content of this document, including all text, images, and associated materials, is the exclusive property of Adaltas and is protected by applicable copyright laws. Unauthorized distribution, reproduction, or sharing of this content, in whole or in part, is strictly prohibited without the express written consent of the author(s). Any violation of this restriction may result in legal action and the imposition of penalties as prescribed by law.*

@@ -2,7 +2,7 @@
 duration: 1h
 ---
 
-# Class 01 - Introduction to Web Technologies
+# Introduction to Web Technologies
 
 Course objectives:
 
@@ -12,17 +12,17 @@ Course objectives:
 
 ## How does a web page load?
 
-When you enter a URL in your browser, a series of steps occur to fetch and display the web page. Here’s a high-level overview of the sequence:
+When a URL is entered in the browser, a series of steps occurs to fetch and display the web page. Here’s a high-level overview of the sequence:
 
 1. Enter an URL in the browser
 
-    - **User Action**: You type <https://example.com> in the browser’s address bar and press Enter.
+    - **User Action**: the user types <https://example.com> in the browser’s address bar and presses Enter.
     - **Browser Pre-Checks**: The browser checks if the domain is already cached locally (in the browser or OS cache). If it is, it can skip the DNS lookup.
 
 2. DNS Lookup
 
     - **DNS Request**: If the IP address isn’t cached, the browser (or the OS) sends a request to a DNS resolver to find the IP address of example.com.
-    - **DNS Response**: The DNS resolver replies with the IP address (e.g., 93.184.216.34).
+    - **DNS Response**: The DNS resolver replies with the IP address of the server hosting the site.
 
 3. TCP/HTTPS Handshake
 
@@ -139,9 +139,11 @@ This simple sequence underpins all modern web requests. Even when using advanced
 - Advantages: SEO-friendly, performance, initial load time, user and developer experience.
 - Disadvantages: complexity, server-side overhead, build setup
 
+The next chapters of this history - component libraries, meta-frameworks, rendering strategies - are the subject of modules 4 to 6.
+
 ## Key Concepts and Tools
 
-Following are some key concepts that will be essential for your journey as a web developer and for the rest of this course:
+Following are some key concepts essential to any web developer and to the rest of this course:
 
 ### UNIX-like Operating Systems
 
@@ -155,13 +157,13 @@ Following are some key concepts that will be essential for your journey as a web
 - Linux: Developed in the 1990s by Linus Torvalds.
 - Most web servers run on Linux.
 - macOS: Based on UNIX (BSD).
-- Windows: Not UNIX-like, but has a Linux subsystem (WSL).
+- Windows: Not UNIX-like, but runs a real Linux through WSL 2 (Windows Subsystem for Linux).
 
 ### Git
 
 - Version control system for tracking changes in source code.
 - Developed by Linus Torvalds in 2005 to manage the Linux kernel.
-- Must known for developers to collaborate and manage code.
+- Must-know for developers to collaborate and manage code.
 - Key concepts:
   - Repository: A collection of files and their history.
   - Commit: A snapshot of changes to the repository.
@@ -172,7 +174,7 @@ Following are some key concepts that will be essential for your journey as a web
 - Platforms for hosting repositories:
   - GitHub: Most popular, acquired by Microsoft in 2018.
   - GitLab: Open-core, offers self-hosted and cloud-based solutions.
-  - Bitbucket: Offers free private repositories.
+  - Bitbucket: By Atlassian, integrated with Jira.
 
 #### Conventional Commits
 
@@ -206,3 +208,7 @@ Following are some key concepts that will be essential for your journey as a web
   - Tables: `| Header 1 | Header 2 |`, `| --- | --- |`, `| Row 1 | Row 2 |`.
   - Emphasis: `*Italic*`, `**Bold**`.
 - GitHub, GitLab, and Bitbucket render Markdown files in repositories.
+
+---
+
+*The content of this document, including all text, images, and associated materials, is the exclusive property of Adaltas and is protected by applicable copyright laws. Unauthorized distribution, reproduction, or sharing of this content, in whole or in part, is strictly prohibited without the express written consent of the author(s). Any violation of this restriction may result in legal action and the imposition of penalties as prescribed by law.*
